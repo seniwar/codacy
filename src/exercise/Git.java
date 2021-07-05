@@ -7,26 +7,34 @@ import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+//melhorar o error handeling
 public class Git {
 
 	//https://github.com/seniwar/codacy.git
 	public String getLogs(String url){
-
+		
 		String gitProjectFolder = getGitProjectName(url);
 		File f = new File(System.getProperty("user.dir") + "\\" + gitProjectFolder);
 		Path directory = Paths.get(System.getProperty("user.dir") + "\\" + gitProjectFolder);
 
-		System.out.println("Please wait while we fetch the information...");
+		System.out.println("\nPlease wait while we fetch the information...\n");
 		//colocar output do clone e do git pull
 		
 		if (!f.exists()) {
+			System.out.println("Clonning the project...");
 			runCommand("git clone " + url);
+			System.out.println("Done.\n");
+			
 		}
 		else {
+			System.out.println("Pulling the project...");
 			runCommand("git -C " + directory.toString() + " pull" );
+			System.out.println("Done.\n");
+			
 		}
-		
-		return runCommand("git -C " + directory.toString() + " log --pretty=format:'{%n  \"commit\": \"%H\",%n   \"subject\": \"%s\",%n    \"author\": {%n    \"name\": \"%aN\",%n    \"date\": \"%aD\"%n  }%n}" ); 
+		//https://github.com/seniwar/codacy.git
+		System.out.println("Getting Commit List for the project...\n");
+		return runCommand("git -C " + directory.toString() + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
 	}
 	
 	public static String getGitProjectName(String url) {
@@ -52,7 +60,7 @@ public class Git {
 	        
 	        exit = pr.waitFor();
 			if (exit != 0) {
-				throw new AssertionError(String.format("Error running command: ", command));
+				throw new AssertionError(String.format("Error running command: " + command));
 			}	
 		} 
 		catch (IOException e) {
