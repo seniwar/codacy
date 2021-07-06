@@ -10,32 +10,15 @@ import java.nio.file.Paths;
 //melhorar o error handeling
 public class Git {
 
-	//https://github.com/seniwar/codacy.git
-	public String getLogs(String url){
+	public static String getLogs(String url) throws IOException, InterruptedException, RunCommandExeption{
 		
-		String gitProjectFolder = getGitProjectName(url);
-		File f = new File(System.getProperty("user.dir") + "\\" + gitProjectFolder);
-		Path directory = Paths.get(System.getProperty("user.dir") + "\\" + gitProjectFolder);
-
-		System.out.println("\nPlease wait while we fetch the information...\n");
-		//colocar output do clone e do git pull
-		
-		if (!f.exists()) {
-			System.out.println("Clonning the project...");
-			runCommand("git clone " + url);
-			System.out.println("Done.\n");
-			
-		}
-		else {
-			System.out.println("Pulling the project...");
-			runCommand("git -C " + directory.toString() + " pull" );
-			System.out.println("Done.\n");
-			
-		}
-		//https://github.com/seniwar/codacy.git
+		File f = new File(System.getProperty("user.dir") + "\\" + getGitProjectName(url));
+		cloneOrPullProject(url, f);
+				
 		System.out.println("Getting Commit List for the project...\n");
-		return runCommand("git -C " + directory.toString() + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
+		return runCommand("git -C " + f.getAbsolutePath() + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
 	}
+	
 	
 	public static String getGitProjectName(String url) {
 		String[] urlParts = url.split("/");
@@ -43,32 +26,50 @@ public class Git {
 		return tmpArray[0];
 	}
 	
-	public static String runCommand(String command) {
+	
+	public static String cloneOrPullProject(String url, File f) throws RunCommandExeption, IOException, InterruptedException {
+		
+		if (!f.exists()) {
+			System.out.println("Clonning the project...");
+			return runCommand("git clone " + url);
+		}
+		else {
+			System.out.println("Pulling the project...");
+			return runCommand("git -C " + f.getAbsolutePath() + " pull" );			
+		}
+	}
+	
+		
+	public static String runCommand(String command) throws RunCommandExeption, IOException, InterruptedException {
 		//talvez colocar uma especie de loading 
 		int exit;
 		Process pr;
 		String output = "";
 		String line = "";
+		String error = "";
 		
-		try {
-			pr = Runtime.getRuntime().exec(command);			
-			BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));  ;
-     
-	        while ((line = stdInput.readLine()) != null) {
-	        	output = output + "\n" + line;
-			}
-	        
-	        exit = pr.waitFor();
-			if (exit != 0) {
-				throw new AssertionError(String.format("Error running command: " + command));
-			}	
-		} 
-		catch (IOException e) {
-			e.printStackTrace();
-		} 
-		catch (InterruptedException e) {
-			e.printStackTrace();
+
+		pr = Runtime.getRuntime().exec(command);			
+		BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));  
+		BufferedReader stdError = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
+ 
+        while ((line = stdInput.readLine()) != null) {
+        	output = output + "\n" + line;
+		}
+        
+        while ((line = stdError.readLine()) != null) {
+        	error = error + "\n" + line;
+        }
+        //alguns outputs estão a ir para o stderror e nao percebo pq. nao me apetece resolver isto
+        
+        exit = pr.waitFor();
+		if (exit != 0) {
+			throw new RunCommandExeption("Error Running command: " + command + error);
 		}	
+		
+		stdInput.close();
+		stdError.close();
+
 		return output;
 	}
 	

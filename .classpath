@@ -6,5 +6,11 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="C:/Users/iguerra/Downloads/commons-io-2.10.0/commons-io-2.10.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/iguerra/Downloads/commons-io-2.10.0/commons-io-2.10.0-javadoc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/iguerra/Downloads/commons-io-2.10.0/commons-io-2.10.0-sources.jar"/>
+	<classpathentry kind="lib" path="C:/Users/iguerra/Downloads/commons-io-2.10.0/commons-io-2.10.0-tests.jar"/>
+	<classpathentry kind="lib" path="C:/Users/iguerra/Downloads/commons-io-2.10.0/commons-io-2.10.0-test-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
