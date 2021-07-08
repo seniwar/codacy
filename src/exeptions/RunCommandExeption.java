@@ -1,4 +1,4 @@
-package exercise;
+package exeptions;
 
 public class RunCommandExeption extends Exception  {
 
@@ -6,3 +6,5 @@ public class RunCommandExeption extends Exception  {
         super(string);
     }
 }
+
+
