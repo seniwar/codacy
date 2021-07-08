@@ -18,6 +18,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import exeptions.RunCommandExeption;
 import exercise.CodacyExercise;
 import exercise.Git;
+import exercise.Operations;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -70,8 +71,9 @@ public class GitTests {
 	@Test
 	@Order(3)
 	public void gitCloneAndLogTest() throws RunCommandExeption, IOException, InterruptedException {		
+		Operations ops = new Operations();
 		assertEquals(expectedLogs, Git.gitCloneAndLog(url, projectPath));
-		assertTrue(projectDir.exists() && projectDir.isDirectory() && !CodacyExercise.isDirEmpty(projectPath));
+		assertTrue(projectDir.exists() && projectDir.isDirectory() && !ops.isDirEmpty(projectPath));
 	}
 	
 	@Test
