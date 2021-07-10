@@ -2,15 +2,10 @@ package exercise;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
 
@@ -23,13 +18,13 @@ public class GitProject {
 	String url;
 	String projectPath;
 	File projectDir;
-	String cachedCommitsPath;
-	File cachedCommitsDir;
 	String projectName;
 	String userName;
+	File cachedCommitsFile;
 	
 	
 	public GitProject() {}
+	
 	
 	public GitProject(String url) {
 		this.url = url;
@@ -41,8 +36,7 @@ public class GitProject {
 		setGitProjectAndUserName();
 		this.projectPath = System.getProperty("user.dir") + "\\" + projectName;
 		this.projectDir = new File(projectPath);
-		this.cachedCommitsPath = projectPath + "\\cachedLogs";
-		this.cachedCommitsDir = new File(cachedCommitsPath);
+		this.cachedCommitsFile = new File(projectPath + "\\commits.ser");
 	}
 	
 	
@@ -65,15 +59,10 @@ public class GitProject {
 	}
 	
 
-	public String getCachedCommitsPath() {
-		return cachedCommitsPath;
+	public File getCachedCommitsFile() {
+		return cachedCommitsFile;
 	}
-	
 
-	public File getCachedCommitsDir() {
-		return cachedCommitsDir;
-	}
-	
 	
 	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
 		Commit[] commits;		
@@ -81,7 +70,7 @@ public class GitProject {
 		if (!projectDir.exists()) {
 			logParseAndSerialize();
 		}
-		else if (projectDir.exists() && (!cachedCommitsDir.exists() || isDirEmpty(cachedCommitsPath))) {
+		else if (projectDir.exists() && !cachedCommitsFile.exists()) {
 			FileUtils.forceDelete(projectDir);
 			logParseAndSerialize();
 		}
@@ -90,6 +79,7 @@ public class GitProject {
 			printCommits(commits);
 		}	
 	}
+	
 	
 	public void logParseAndSerialize() throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {		
 		Commit[] commits;
@@ -108,14 +98,6 @@ public class GitProject {
 			commits = parseAndPrintCommits(commitLogs);	
 		}
 		cacheCommitLogs(commits);
-	}
-	
-	
-	public boolean isDirEmpty(String path) throws IOException {
-		Path cachedCommitsPathObj = Paths.get(path);
-	    try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(cachedCommitsPathObj)) {
-	        return !dirStream.iterator().hasNext();
-	    }
 	}
 	
 	
@@ -157,25 +139,18 @@ public class GitProject {
 	
 
 	public void cacheCommitLogs(Commit[] commits) {
-
-		String cachedCommitsFileName = cachedCommitsPath + "\\commits.ser";
 		
 		if (!projectDir.exists()) {
 			projectDir.mkdir();
         }
-		
-		if (!cachedCommitsDir.exists()) {
-			cachedCommitsDir.mkdir();
-        }
-		
+				
 	    try {
-			FileOutputStream file = new FileOutputStream(cachedCommitsFileName);
+			FileOutputStream file = new FileOutputStream(cachedCommitsFile);
 			ObjectOutputStream out = new ObjectOutputStream(file);
 			out.writeObject(commits);
-			//put on finally?
 			out.close();
 			file.close();
-			System.out.printf("Serialized data is saved in " + cachedCommitsFileName);
+			System.out.printf("Serialized data is saved in " + cachedCommitsFile);
 	    } 
 	    catch (IOException e) {
 	    	e.printStackTrace();
@@ -183,20 +158,21 @@ public class GitProject {
 	}
 	
 	
-	public Commit[] readCachedCommits() throws IOException , FileNotFoundException, ClassNotFoundException {
+	public Commit[] readCachedCommits()   {
 		
-		String cachedCommitsFileName = cachedCommitsPath + "\\commits.ser";
 		Commit[] commits = null;
-
-        FileInputStream file = new FileInputStream(cachedCommitsFileName);
-        ObjectInputStream in = new ObjectInputStream(file);   
-        commits = (Commit[])in.readObject();
-      //put on finally?
-        in.close();
-        file.close();
-          
-        System.out.println("\nShowing cached commit list...\n");
-		
+		try {
+			FileInputStream file = new FileInputStream(cachedCommitsFile);
+	        ObjectInputStream in = new ObjectInputStream(file);   
+	        commits = (Commit[])in.readObject();
+	        in.close();
+	        file.close();
+	          
+	        System.out.println("\nShowing cached commit list...\n");
+		} 
+	    catch (IOException | ClassNotFoundException e) {
+	    	e.printStackTrace();
+	    }
 		return commits;
 	}
 }

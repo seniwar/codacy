@@ -29,6 +29,15 @@ import exercise.GitProject;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GitProjTests  {
 
+	/*
+	public boolean isDirEmpty(String path) throws IOException {
+		Path cachedCommitsPathObj = Paths.get(path);
+	    try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(cachedCommitsPathObj)) {
+	        return !dirStream.iterator().hasNext();
+	    }
+	}*/
+	
+	
 	private static String url = "https://github.com/Coveros/helloworld.git";
 	
 	private final PrintStream standardOut = System.out;
