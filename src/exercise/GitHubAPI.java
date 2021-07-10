@@ -20,7 +20,7 @@ public class GitHubAPI {
 		HttpURLConnection conn = null;
 		
 		try {
-			url = new URL("https://api.github.com/repos/" + userName + "/" + projectName + "/commitss");
+			url = new URL("https://api.github.com/repos/" + userName + "/" + projectName + "/commits");
 			
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
@@ -67,6 +67,5 @@ public class GitHubAPI {
 	    }
 	    return commits;
 	}
-	
-  
+
 }

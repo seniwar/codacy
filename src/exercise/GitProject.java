@@ -11,7 +11,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.io.FileUtils;
 
 import exeptions.FailedHTTTPResponseExeption;
 import exeptions.InvalidInputExeption;
@@ -77,7 +78,11 @@ public class GitProject {
 	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
 		Commit[] commits;		
 		
-		if (!projectDir.exists() || !cachedCommitsDir.exists() || isDirEmpty(cachedCommitsPath)) {
+		if (!projectDir.exists()) {
+			logParseAndSerialize();
+		}
+		else if (projectDir.exists() && (!cachedCommitsDir.exists() || isDirEmpty(cachedCommitsPath))) {
+			FileUtils.forceDelete(projectDir);
 			logParseAndSerialize();
 		}
 		else {
@@ -94,26 +99,17 @@ public class GitProject {
 		try {
 			String jsonResponse = gitHubAPI.getCommitsFromAPI(projectName, userName);
 			commits = gitHubAPI.parseJsonCommitLogs(jsonResponse);
-			System.out.println("\nThe List of Commits is: \n");
+			System.out.println("\nThe List of Commits got from API is: \n");
 			printCommits(commits);
 		}
 		catch (FailedHTTTPResponseExeption e){
-			e.printStackTrace();
-			TimeUnit.SECONDS.sleep(1);
 			System.out.println("\nERROR invoking GitHub API. Using fallback procedure...");
-			
-			
-			if (!projectDir.exists() || (projectDir.exists() && isDirEmpty(projectPath)) ) {
-				commitLogs = GitCommands.gitCloneAndLog(url, projectPath);
-			}
-			else {
-				commitLogs = GitCommands.gitPullAndLog(url, projectPath);
-			}
-			
+			commitLogs = GitCommands.gitCloneAndLog(url, projectPath);			
 			commits = parseAndPrintCommits(commitLogs);	
 		}
 		cacheCommitLogs(commits);
 	}
+	
 	
 	public boolean isDirEmpty(String path) throws IOException {
 		Path cachedCommitsPathObj = Paths.get(path);
@@ -121,6 +117,7 @@ public class GitProject {
 	        return !dirStream.iterator().hasNext();
 	    }
 	}
+	
 	
 	public Commit[] parseAndPrintCommits(String commitLogs) {
 

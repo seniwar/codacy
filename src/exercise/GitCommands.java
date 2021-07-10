@@ -10,24 +10,11 @@ import exeptions.RunCommandExeption;
 
 public class GitCommands {
 	
-	public static String gitCloneAndLog(String url, String path) throws IOException, InterruptedException, RunCommandExeption{
+	public static String gitCloneAndLog(String url, String path) throws IOException, InterruptedException, RunCommandExeption{		
 		
-		System.out.println("\nClonning the project...");
 		runCommand("git clone " + url);
-		System.out.println("Done.\n");
-
 		return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
 	}
-	
-	public static String gitPullAndLog(String url, String path) throws IOException, InterruptedException, RunCommandExeption{
-		
-		System.out.println("\nProject exists but there are no cached logs.\n");
-		System.out.println("Pulling the project...\n");
-		runCommand("git -C " + path + " pull" );
-		System.out.println("Done.\n");
-				
-		return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
-	}	
 	
 	
 	public static String runCommand(String command) throws RunCommandExeption, IOException, InterruptedException {
