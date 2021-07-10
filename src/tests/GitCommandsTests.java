@@ -16,13 +16,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import exeptions.RunCommandExeption;
-import exercise.CodacyExercise;
-import exercise.Git;
-import exercise.Operations;
+import exercise.GitProject;
+import exercise.GitCommands;
+
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class GitTests {
+public class GitCommandsTests {
 
 	private static String url = "https://github.com/Coveros/helloworld.git";
 	
@@ -58,28 +58,23 @@ public class GitTests {
 	@Test
 	@Order(1)
 	public void wrongGitHubUrlTest() {
-	    Throwable exception = assertThrows(RunCommandExeption.class, () -> Git.gitCloneAndLog("xxxx", projectPath));
+	    Throwable exception = assertThrows(RunCommandExeption.class, () -> GitCommands.gitCloneAndLog("xxxx", projectPath));
 	    assertEquals("Error Running command: git clone xxxx\nfatal: repository 'xxxx' does not exist", exception.getMessage());
 	}
 	
+	
 	@Test
 	@Order(2)
-	public void getGitProjectNameTest() {
-		assertEquals("helloworld", Git.getGitProjectName(url));
-	}
-	
-	@Test
-	@Order(3)
 	public void gitCloneAndLogTest() throws RunCommandExeption, IOException, InterruptedException {		
-		Operations ops = new Operations();
-		assertEquals(expectedLogs, Git.gitCloneAndLog(url, projectPath));
-		assertTrue(projectDir.exists() && projectDir.isDirectory() && !ops.isDirEmpty(projectPath));
+		GitProject gitProj = new GitProject(url);
+		assertEquals(expectedLogs, GitCommands.gitCloneAndLog(url, projectPath));
+		assertTrue(projectDir.exists() && projectDir.isDirectory() && !gitProj.isDirEmpty(projectPath));
 	}
 	
 	@Test
-	@Order(4)	
+	@Order(3)	
 	public void gitPullAndLogTest() throws RunCommandExeption, IOException, InterruptedException {
-		assertEquals(expectedLogs, Git.gitPullAndLog(url, projectPath));
+		assertEquals(expectedLogs, GitCommands.gitPullAndLog(url, projectPath));
 	}
 	
 }

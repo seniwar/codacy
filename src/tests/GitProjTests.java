@@ -23,18 +23,18 @@ import org.junit.jupiter.api.TestMethodOrder;
 import exeptions.InvalidInputExeption;
 import exeptions.RunCommandExeption;
 import exercise.Commit;
-import exercise.Operations;
+import exercise.GitProject;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class OperationsTests {
+public class GitProjTests  {
 
 	private static String url = "https://github.com/Coveros/helloworld.git";
 	
 	private final PrintStream standardOut = System.out;
 	private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 	
-	static Operations ops = new Operations(System.getProperty("user.dir") + "\\helloworld");
+	static GitProject ops = new GitProject(url);
 	
 	String projectPath = ops.getProjectPath();
 	File projectDir = ops.getProjectDir();
@@ -139,7 +139,7 @@ public class OperationsTests {
 	@Test
 	@Order(2)
 	public void seeCommitLogsWithCloneTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {
-		ops.seeCommitLogs(url);
+		ops.seeCommitLogs();
 		assertTrue(projectDir.exists() && projectDir.isDirectory() && !ops.isDirEmpty(projectPath));
 		assertTrue(cachedCommitsDir.exists() && cachedCommitsDir.isDirectory() && !ops.isDirEmpty(cachedCommitsPath));
 	    assertEquals(fullCloneConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
@@ -150,7 +150,7 @@ public class OperationsTests {
 	@Test
 	@Order(3)
 	public void seeCommitLogsWithCacheTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {
-		ops.seeCommitLogs(url);
+		ops.seeCommitLogs();
 	    assertEquals(fullCacheConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	}
 	
@@ -159,7 +159,7 @@ public class OperationsTests {
 	@Order(4)
 	public void seeCommitLogsWithPullTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {
 		FileUtils.forceDelete(ops.getCachedCommitsDir()); 
-		ops.seeCommitLogs(url);
+		ops.seeCommitLogs();
 		assertTrue(cachedCommitsDir.exists() && cachedCommitsDir.isDirectory() && !ops.isDirEmpty(cachedCommitsPath));
 	    assertEquals(fullPullConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	}
@@ -185,7 +185,7 @@ public class OperationsTests {
 	@Order(7)
 	public void logParseAndSerializeWithCloneTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {	
 		FileUtils.forceDelete(ops.getProjectDir());
-		ops.logParseAndSerialize("clone", url);
+		ops.logParseAndSerialize("clone");
 		assertTrue(projectDir.exists() && projectDir.isDirectory() && !ops.isDirEmpty(projectPath));
 	    assertEquals(fullCloneConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	}
@@ -194,7 +194,7 @@ public class OperationsTests {
 	@Test
 	@Order(8)
 	public void logParseAndSerializeWithPullTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {	
-		ops.logParseAndSerialize("pull", url);
+		ops.logParseAndSerialize("pull");
 		assertTrue(cachedCommitsDir.exists() && cachedCommitsDir.isDirectory() && !ops.isDirEmpty(cachedCommitsPath));
 	    assertEquals(fullPullConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	}
@@ -203,7 +203,7 @@ public class OperationsTests {
 	@Test
 	@Order(9)
 	public void faillogParseAndSerializeTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {	
-		Throwable exception = assertThrows(InvalidInputExeption.class, () -> ops.logParseAndSerialize("xxx", url));
+		Throwable exception = assertThrows(InvalidInputExeption.class, () -> ops.logParseAndSerialize("xxx"));
 		assertEquals("Invalid input: xxx", exception.getMessage());
 	}
 	

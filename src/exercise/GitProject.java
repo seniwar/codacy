@@ -11,58 +11,109 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
+import exeptions.FailedHTTTPResponseExeption;
 import exeptions.InvalidInputExeption;
 import exeptions.RunCommandExeption;
 
-public class Operations {
+public class GitProject {
 	
+	String url;
 	String projectPath;
 	File projectDir;
 	String cachedCommitsPath;
 	File cachedCommitsDir;
+	String projectName;
+	String userName;
 	
-	public Operations() {}
 	
-	public Operations(String projectPath) {
-		this.projectPath = projectPath;
+	public GitProject() {}
+	
+	public GitProject(String url) {
+		this.url = url;
+		setVars();
+	}
+	
+	
+	public void setVars() {
+		setGitProjectAndUserName();
+		this.projectPath = System.getProperty("user.dir") + "\\" + projectName;
 		this.projectDir = new File(projectPath);
 		this.cachedCommitsPath = projectPath + "\\cachedLogs";
 		this.cachedCommitsDir = new File(cachedCommitsPath);
 	}
 	
+	
+	public void setGitProjectAndUserName() {
+		String[] urlParts = url.split("/");
+		String lastPart = urlParts[urlParts.length-1];
+		int gitIndex = lastPart.indexOf(".git");
+		projectName = lastPart.substring(0, gitIndex);
+		userName = urlParts[3];
+	}
+	
+	
 	public String getProjectPath() {
 		return projectPath;
 	}
+	
 
 	public File getProjectDir() {
 		return projectDir;
 	}
+	
 
 	public String getCachedCommitsPath() {
 		return cachedCommitsPath;
 	}
+	
 
 	public File getCachedCommitsDir() {
 		return cachedCommitsDir;
 	}
-
 	
-	public void seeCommitLogs(String url) throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
-		Commit[] commits;
-						
-		if (!projectDir.exists()) {
-			logParseAndSerialize("clone", url);
-		}
-		else if (projectDir.exists() && (!cachedCommitsDir.exists() || isDirEmpty(cachedCommitsPath))) {
-			logParseAndSerialize("pull", url);
+	
+	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
+		Commit[] commits;		
+		
+		if (!projectDir.exists() || !cachedCommitsDir.exists() || isDirEmpty(cachedCommitsPath)) {
+			logParseAndSerialize();
 		}
 		else {
-			commits = readCachedCommits();//ler logs
-			printCommits(commits);//print logs
+			commits = readCachedCommits();
+			printCommits(commits);
 		}	
 	}
-
+	
+	public void logParseAndSerialize() throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {		
+		Commit[] commits;
+		String commitLogs = null;
+		GitHubAPI gitHubAPI = new GitHubAPI();	
+		
+		try {
+			String jsonResponse = gitHubAPI.getCommitsFromAPI(projectName, userName);
+			commits = gitHubAPI.parseJsonCommitLogs(jsonResponse);
+			System.out.println("\nThe List of Commits is: \n");
+			printCommits(commits);
+		}
+		catch (FailedHTTTPResponseExeption e){
+			e.printStackTrace();
+			TimeUnit.SECONDS.sleep(1);
+			System.out.println("\nERROR invoking GitHub API. Using fallback procedure...");
+			
+			
+			if (!projectDir.exists() || (projectDir.exists() && isDirEmpty(projectPath)) ) {
+				commitLogs = GitCommands.gitCloneAndLog(url, projectPath);
+			}
+			else {
+				commitLogs = GitCommands.gitPullAndLog(url, projectPath);
+			}
+			
+			commits = parseAndPrintCommits(commitLogs);	
+		}
+		cacheCommitLogs(commits);
+	}
 	
 	public boolean isDirEmpty(String path) throws IOException {
 		Path cachedCommitsPathObj = Paths.get(path);
@@ -71,24 +122,6 @@ public class Operations {
 	    }
 	}
 	
-	
-	public void logParseAndSerialize(String command, String url) throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {		
-		Commit[] commits;
-		String commitLogs = null;
-		if(command.equals("clone")) {
-			commitLogs = Git.gitCloneAndLog(url, projectPath);		
-		}
-		else if(command.equals("pull")) {
-			commitLogs = Git.gitPullAndLog(url, projectPath);
-		}
-		else {
-			throw new InvalidInputExeption("Invalid input: " + command);
-		}
-		commits = parseAndPrintCommits(commitLogs);
-		cacheCommitLogs(commits);
-	}
-	
-
 	public Commit[] parseAndPrintCommits(String commitLogs) {
 
 		commitLogs = commitLogs.substring(commitLogs.indexOf("\n")+1);
@@ -130,6 +163,10 @@ public class Operations {
 
 		String cachedCommitsFileName = cachedCommitsPath + "\\commits.ser";
 		
+		if (!projectDir.exists()) {
+			projectDir.mkdir();
+        }
+		
 		if (!cachedCommitsDir.exists()) {
 			cachedCommitsDir.mkdir();
         }
@@ -138,7 +175,7 @@ public class Operations {
 			FileOutputStream file = new FileOutputStream(cachedCommitsFileName);
 			ObjectOutputStream out = new ObjectOutputStream(file);
 			out.writeObject(commits);
-			//colocar em finally
+			//put on finally?
 			out.close();
 			file.close();
 			System.out.printf("Serialized data is saved in " + cachedCommitsFileName);
@@ -157,7 +194,7 @@ public class Operations {
         FileInputStream file = new FileInputStream(cachedCommitsFileName);
         ObjectInputStream in = new ObjectInputStream(file);   
         commits = (Commit[])in.readObject();
-        //colocar em finally
+      //put on finally?
         in.close();
         file.close();
           
