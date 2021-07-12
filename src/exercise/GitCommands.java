@@ -12,6 +12,7 @@ public class GitCommands {
 	public static String gitCloneAndLog(String url, String path) throws IOException, InterruptedException, RunCommandExeption{			
 		runCommand("git clone " + url);
 		return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
+		//return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\" --date=format:'%Y-%m-%dT%H:%M:%SZ'" );	
 	}
 	
 	

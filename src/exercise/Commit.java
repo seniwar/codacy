@@ -43,6 +43,5 @@ public class Commit implements java.io.Serializable {
 	public void setAuthor(String author) {
 		this.author = author;
 	} 
-	
-		
+
 }

@@ -2,6 +2,7 @@ package exercise;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -59,6 +60,47 @@ public class GitProject {
 	}
 	
 
+	public String getUrl() {
+		return url;
+	}
+
+
+	public String getProjectName() {
+		return projectName;
+	}
+
+
+	public String getUserName() {
+		return userName;
+	}
+	
+	
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+
+	public void setProjectPath(String projectPath) {
+		this.projectPath = projectPath;
+	}
+
+
+	public void setProjectDir(File projectDir) {
+		this.projectDir = projectDir;
+	}
+
+
+	public void setProjectName(String projectName) {
+		this.projectName = projectName;
+	}
+
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+
+
 	public File getCachedCommitsFile() {
 		return cachedCommitsFile;
 	}
@@ -67,11 +109,7 @@ public class GitProject {
 	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
 		Commit[] commits;		
 		
-		if (!projectDir.exists()) {
-			logParseAndSerialize();
-		}
-		else if (projectDir.exists() && !cachedCommitsFile.exists()) {
-			FileUtils.forceDelete(projectDir);
+		if (!projectDir.exists() || (projectDir.exists() && !cachedCommitsFile.exists())) {
 			logParseAndSerialize();
 		}
 		else {
@@ -94,13 +132,21 @@ public class GitProject {
 		}
 		catch (FailedHTTTPResponseExeption e){
 			System.out.println("\nERROR invoking GitHub API. Using fallback procedure...");
+			if (projectDir.exists()) {
+				FileUtils.forceDelete(projectDir);
+			}
 			commitLogs = GitCommands.gitCloneAndLog(url, projectPath);			
 			commits = parseAndPrintCommits(commitLogs);	
 		}
 		cacheCommitLogs(commits);
 	}
-	
-	
+
+
+	public void setCachedCommitsFile(File cachedCommitsFile) {
+		this.cachedCommitsFile = cachedCommitsFile;
+	}
+
+
 	public Commit[] parseAndPrintCommits(String commitLogs) {
 
 		commitLogs = commitLogs.substring(commitLogs.indexOf("\n")+1);
@@ -158,21 +204,16 @@ public class GitProject {
 	}
 	
 	
-	public Commit[] readCachedCommits()   {
+	public Commit[] readCachedCommits() throws IOException , FileNotFoundException, ClassNotFoundException  {
 		
 		Commit[] commits = null;
-		try {
-			FileInputStream file = new FileInputStream(cachedCommitsFile);
-	        ObjectInputStream in = new ObjectInputStream(file);   
-	        commits = (Commit[])in.readObject();
-	        in.close();
-	        file.close();
-	          
-	        System.out.println("\nShowing cached commit list...\n");
-		} 
-	    catch (IOException | ClassNotFoundException e) {
-	    	e.printStackTrace();
-	    }
+		FileInputStream file = new FileInputStream(cachedCommitsFile);
+        ObjectInputStream in = new ObjectInputStream(file);   
+        commits = (Commit[])in.readObject();
+        in.close();
+        file.close();          
+        System.out.println("\nShowing cached commit list...\n");
+
 		return commits;
 	}
 }
