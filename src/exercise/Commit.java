@@ -43,5 +43,14 @@ public class Commit implements java.io.Serializable {
 	public void setAuthor(String author) {
 		this.author = author;
 	} 
+	
+
+	@Override
+	public String toString() {
+		return  "Commit: " + this.sha + "\n" + 
+				"Author: " + this.author + "\n" + 
+				"Date: " + this.date + "\n" + 
+				"Message: " + this.message + "\n\n";
+	}
 
 }

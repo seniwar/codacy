@@ -9,10 +9,15 @@ import exeptions.RunCommandExeption;
 
 public class GitCommands {
 	
+	private static final String GIT_CLONE = "git clone ";
+	private static final String GIT_LOG = " log --pretty=format:\"%H,%an,%ad,%s\" --date=format:'%Y-%m-%dT%H:%M:%SZ'";
+	private static final String GIT_CHOOSE_DIR = "git -C ";
+	private static final String NEW_LINE = "\n";
+	
+	
 	public static String gitCloneAndLog(String url, String path) throws IOException, InterruptedException, RunCommandExeption{			
-		runCommand("git clone " + url);
-		return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\"" );	
-		//return runCommand("git -C " + path + " log --pretty=format:\"%H,%an,%ad,%s\" --date=format:'%Y-%m-%dT%H:%M:%SZ'" );	
+		runCommand(GIT_CLONE + url);	
+		return runCommand(GIT_CHOOSE_DIR + path + GIT_LOG);	
 	}
 	
 	
@@ -25,15 +30,17 @@ public class GitCommands {
 
 		pr = Runtime.getRuntime().exec(command);		
 		exit = pr.waitFor();
+		
+		//make this a function and put insde try with resources. 
 		BufferedReader stdInput = new BufferedReader(new InputStreamReader(pr.getInputStream()));  
 		BufferedReader stdError = new BufferedReader(new InputStreamReader(pr.getErrorStream()));
  
         while ((line = stdInput.readLine()) != null) {
-        	output = output + "\n" + line;
+        	output = output + NEW_LINE + line;
 		}
         
         while ((line = stdError.readLine()) != null) {
-        	error = error + "\n" + line;
+        	error = error + NEW_LINE + line;
         }
     
 		if (exit != 0) {

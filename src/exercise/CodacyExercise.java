@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import exeptions.InvalidInputExeption;
 import exeptions.RunCommandExeption;
+import exeptions.UrlMalFormedExeption;
 
 
 public class CodacyExercise {
@@ -20,7 +21,10 @@ public class CodacyExercise {
 		    
 		    GitProject gitProj = new GitProject(url);
 		    gitProj.seeCommitLogs();
-		} 
+		}
+		catch (UrlMalFormedExeption e) {
+			e.printStackTrace();
+		}
 		finally {
 			scan.close();
 		}

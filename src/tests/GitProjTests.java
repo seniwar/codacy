@@ -25,6 +25,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import exeptions.InvalidInputExeption;
 import exeptions.RunCommandExeption;
+import exeptions.UrlMalFormedExeption;
 import exercise.Commit;
 import exercise.GitProject;
 
@@ -32,19 +33,19 @@ import exercise.GitProject;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GitProjTests  {
 	
-	private static String url = "https://github.com/Coveros/helloworld.git";
+	private String url = "https://github.com/Coveros/helloworld.git";
 	
 	private final PrintStream standardOut = System.out;
 	private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
 	
-	static GitProject gitProj;
+	private GitProject gitProj;
 
-	private static String expectedLogs = "\n649d8b1484235ea186b060fae08c5ca1598a8327,Gene Gotimer,Sun Sep 15 15:52:57 2019 -0400,Added time stamp to make each run unique (sign of life)\n"
+	private String expectedLogs = "\n649d8b1484235ea186b060fae08c5ca1598a8327,Gene Gotimer,Sun Sep 15 15:52:57 2019 -0400,Added time stamp to make each run unique (sign of life)\n"
 			+ "e3d42c1d8557e26692759b66516bf93b64cae7e6,Gene Gotimer,Sat Sep 8 15:19:29 2018 -0400,Added a README\n"
 			+ "c51f661a26bd223ff9bca44cac253d0c314c0401,Gene Gotimer,Sat Sep 8 15:15:35 2018 -0400,Simple Java application";
 
 	
-	private static String fullApiConsoleMessage = "\nThe List of Commits got from API is: \n\n"
+	private String fullApiConsoleMessage = "\nThe List of Commits got from API is: \n\n"
 			+ "Commit: 649d8b1484235ea186b060fae08c5ca1598a8327\n"
 			+ "Author: Gene Gotimer\n"
 			+ "Date: 2019-09-15T19:52:57Z\n"
@@ -61,7 +62,7 @@ public class GitProjTests  {
 	
 	
 	
-	private static String fullCloneConsoleMessage = "\nERROR invoking GitHub API. Using fallback procedure...\n"
+	private String fullCloneConsoleMessage = "\nERROR invoking GitHub API. Using fallback procedure...\n"
 			+ "The List of Commits is: \n\n"
 			+ "Commit: 649d8b1484235ea186b060fae08c5ca1598a8327\n"
 			+ "Author: Gene Gotimer\n"
@@ -77,7 +78,7 @@ public class GitProjTests  {
 			+ "Message: Simple Java application\n\n"
 			+ "Serialized data is saved in C:\\Users\\iguerra\\Desktop\\ines\\codacy\\codacy\\helloworld\\commits.ser";
 	
-	private static String fullCacheConsoleMessage = "\nShowing cached commit list...\n\n"
+	private String fullCacheConsoleMessage = "\nShowing cached commit list...\n\n"
 			+ "Commit: 649d8b1484235ea186b060fae08c5ca1598a8327\n"
 			+ "Author: Gene Gotimer\n"
 			+ "Date: 2019-09-15T19:52:57Z\n"
@@ -92,9 +93,9 @@ public class GitProjTests  {
 			+ "Message: Simple Java application\n\n";			
 	
 	
-	private static String projectPath = System.getProperty("user.dir") + "\\helloworld";
-	private static File projectDir = new File(projectPath);
-	private static String cachedCommitsFileName = projectPath + "\\commits.ser";
+	private String projectPath = System.getProperty("user.dir") + "\\helloworld";
+	private File projectDir = new File(projectPath);
+	private String cachedCommitsFileName = projectPath + "\\commits.ser";
 	
 	
 	public boolean isDirEmpty(String path) throws IOException {
@@ -106,13 +107,15 @@ public class GitProjTests  {
 	
 	
 	@BeforeAll
-	static private void deleteProjectIfExists(){
+	private void deleteProjectIfExists(){
+		
 		try {
+			gitProj = new GitProject(url);
 			if (projectDir.exists()) {
 	            FileUtils.forceDelete(projectDir); 
 			}
         } 
-		catch (IOException e) {
+		catch (UrlMalFormedExeption | IOException e) {
             e.printStackTrace();
         } 
 	}
@@ -130,11 +133,13 @@ public class GitProjTests  {
 	}
 	
 	
+	
+	//fazer teste para lançar UrlMalFormedExeption - criar obj errado
+	
 	@Test
 	@Order(1)
 	public void createGitProjctObjTest() {	
-		
-		gitProj = new GitProject(url);	
+
 		assertEquals(gitProj.getProjectPath(), projectPath);
 		assertEquals(gitProj.getProjectDir().getAbsolutePath(), projectPath);
 		assertEquals(gitProj.getCachedCommitsFile().getAbsolutePath(), projectPath + "\\commits.ser");			
@@ -169,18 +174,18 @@ public class GitProjTests  {
 	    assertEquals(fullCacheConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	}
 	
-	
+
 	@Test
 	@Order(5)
-	public void logParseAndSerializeCloneTest() throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {	
+	public void logParseAndSerializeCloneTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption  {	
 		gitProj.setUserName("xxx");
-		gitProj.logParseAndSerialize();
+		gitProj.seeCommitLogs();
 		assertTrue(projectDir.exists() && projectDir.isDirectory() && !isDirEmpty(projectPath));
 	    assertEquals(fullCloneConsoleMessage, outputStreamCaptor.toString().replaceAll("[\\r\\t]", ""));
 	    gitProj.setUserName("Coveros");
 	}
 	
-	
+	//usar tb funçao acima
 	@Test
 	@Order(6)
 	public void parseAndPrintCommitsTest() throws IOException, InterruptedException, RunCommandExeption {

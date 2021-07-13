@@ -48,7 +48,7 @@ public class GitHubApiTests {
 	    assertEquals(api.getCommitsFromAPI("helloworld", "Coveros"), expectedLogs);
 	}
 	
-	
+	//usar string mais simples
 	@Test
 	public void parseJsonCommitLogsTest(){		
 		
@@ -66,4 +66,8 @@ public class GitHubApiTests {
 		}			
 	}	
 	
+	
+	//testar readResponse - sucesso é dar um ficheiro com cenas e imprime as cenas. erro - provocar o erro perguntar tio google
+	
+	//testar setConnection - sucesso é dar um ficheiro com cenas e imprime as cenas. erro - provocar o erro perguntar tio google
 }
