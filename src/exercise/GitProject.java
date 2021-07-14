@@ -1,12 +1,9 @@
 package exercise;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,13 +13,6 @@ import exeptions.RunCommandExeption;
 import exeptions.UrlMalFormedExeption;
 
 public class GitProject {
-	
-	String url;
-	String projectPath;
-	File projectDir;
-	String projectName;
-	String userName;
-	File cachedCommitsFile;
 	
 	private static final String USER_DIRECTORY ="user.dir";
 	private static final String CACHED_COMMITS_FILENAME ="commits.ser";
@@ -40,16 +30,26 @@ public class GitProject {
 	private static final int LOG_DATE_INDEX = 2;
 	private static final int LOG_MESSAGE_INDEX = 3;
 	
+	String url;
+	String projectPath;
+	File projectDir;
+	String projectName;
+	String userName;
+	File cachedCommitsFile;
+	
+	
 	public GitProject() {}
 	
 	
 	public GitProject(String url) throws UrlMalFormedExeption {
+		
 		this.url = url;
 		setVars();
 	}
 	
 	
 	private void setVars() throws UrlMalFormedExeption {
+		
 		setGitProjectAndUserName();
 		this.projectPath = System.getProperty(USER_DIRECTORY) + File.separator + projectName;
 		this.projectDir = new File(projectPath);
@@ -58,6 +58,7 @@ public class GitProject {
 	
 	
 	private void setGitProjectAndUserName() throws UrlMalFormedExeption {
+		
 		try {
 			String[] urlParts = url.split(URL_SPLIT_CHAR);
 			String lastPart = urlParts[urlParts.length-1];
@@ -66,41 +67,42 @@ public class GitProject {
 			this.userName = urlParts[URL_USERNAME_INDEX];
 		}
 		catch (Exception e){
-			throw new UrlMalFormedExeption(e.getMessage());
+			throw new UrlMalFormedExeption("Wrong URL. ");
 		}
 	}
 
 	
 	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
-		Commit[] commits;		
-		
+
+		List<Commit> commits = new ArrayList<>();	
 		if (!projectDir.exists() || (projectDir.exists() && !cachedCommitsFile.exists())) {
 			logParseAndSerialize();
 		}
 		else {
-			commits = readCachedCommits();
+			commits = ReadAndWriteOperations.readCachedCommits(cachedCommitsFile);
 			printCommits(commits);
 		}	
 	}
 	
 	
 	private void logParseAndSerialize() throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {		
-		Commit[] commits;
-		GitHubAPI gitHubAPI = new GitHubAPI();	
-		
+
+		List<Commit> commits = new ArrayList<>();
+		GitHubAPI gitHubAPI = new GitHubAPI();			
 		try {
 			commits = getApiResponse(gitHubAPI);
 		}
 		catch (FailedHTTTPResponseExeption e){
 			commits = getFallbackResponse();	
 		}
-		cacheCommitLogs(commits);
+
+		ReadAndWriteOperations.cacheCommitLogs(commits, projectDir, cachedCommitsFile);
 	}
 
 
-	private Commit[] getFallbackResponse() throws IOException, InterruptedException, RunCommandExeption {
-		
-		Commit[] commits;
+	private List<Commit> getFallbackResponse() throws IOException, InterruptedException, RunCommandExeption {
+
+		List<Commit> commits = new ArrayList<>();
 		String commitLogs;
 		System.out.println("ERROR invoking GitHub API. Using fallback procedure...");
 		if (projectDir.exists()) {
@@ -112,33 +114,35 @@ public class GitProject {
 	}
 
 
-	private Commit[] getApiResponse(GitHubAPI gitHubAPI) throws FailedHTTTPResponseExeption {
+	private List<Commit> getApiResponse(GitHubAPI gitHubAPI) throws FailedHTTTPResponseExeption {
 		
-		Commit[] commits;
-		String jsonResponse = gitHubAPI.getCommitsFromAPI(projectName, userName);
-		commits = gitHubAPI.parseJsonCommitLogs(jsonResponse);
+		List<Commit> commits = new ArrayList<>();
+		String jsonResponse = GitHubAPI.getCommitsFromAPI(projectName, userName);
+		JsonProcessor jsonProc = new JsonProcessor(jsonResponse);
+		commits = jsonProc.parseJsonCommitLogs();
 		System.out.println("The List of Commits got from API is: ");
 		printCommits(commits);
 		return commits;
 	}
 	
 
-	public Commit[] parseAndPrintCommits(String commitLogs) {
+	private List<Commit> parseAndPrintCommits(String commitLogs) {
 
-		String[] commitArray = spliter(commitLogs);
-		Commit[] commits = new Commit[commitArray.length];
+		String[] commitArray = splitByLine(commitLogs);
+		List<Commit> commits = new ArrayList<>();
 		
 		System.out.println("The List of Commits is: ");
 		for (int i = 0; i < commitArray.length; i++) {
 			String[] log = commitArray[i].split(COMMA);
-			commits[i] = new Commit(log[LOG_SHA_INDEX], log[LOG_MESSAGE_INDEX], log[LOG_DATE_INDEX], log[LOG_AUTHOR_INDEX]);				
-			System.out.println(commits[i].toString());
+			Commit commit = new Commit(log[LOG_SHA_INDEX], log[LOG_MESSAGE_INDEX], log[LOG_DATE_INDEX], log[LOG_AUTHOR_INDEX]);
+			commits.add(commit);				
+			System.out.println(commit.toString());
 		}
 		return commits;	
 	}
 
 
-	private String[] spliter(String commitLogs) {
+	private String[] splitByLine(String commitLogs) {
 		
 		commitLogs = commitLogs.substring(commitLogs.indexOf(NEW_LINE)+1);
 		String[] commitArray = commitLogs.split(NEW_LINE);
@@ -146,40 +150,14 @@ public class GitProject {
 	}
 	
 
-	public void printCommits(Commit[] commits) {
-
-		for (int i = 0; i < commits.length; i++) {
-			System.out.println(commits[i].toString());
+	public void printCommits(List<Commit> commits) {
+		
+		for (Commit commit : commits) {
+			System.out.println(commit.toString());
 		}
 	}
 
 
-	public void cacheCommitLogs(Commit[] commits) throws FileNotFoundException, IOException {
-		
-		if (!projectDir.exists()) {
-			projectDir.mkdir();
-        }			
-		try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(cachedCommitsFile))){
-			out.writeObject(commits);
-		}
-	    System.out.println("Serialized data is saved in " + cachedCommitsFile);
-	}
-	
-	
-	public Commit[] readCachedCommits() throws IOException ,FileNotFoundException, ClassNotFoundException  {
-		
-		Commit[] commits = null;
-		//List<Commit> commitsss = new ArrayList<>();
-		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(cachedCommitsFile) )){
-			commits = (Commit[])in.readObject();
-			//commitsss.addAll((Collection<? extends Commit>) in.readObject());
-		}                   
-        System.out.println("Showing cached commit list...");
-
-		return commits;
-	}
-	
-	
 	public String getProjectPath() {
 		return projectPath;
 	}

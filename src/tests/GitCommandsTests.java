@@ -19,19 +19,13 @@ import exeptions.RunCommandExeption;
 import exercise.GitCommands;
 
 
-public class GitCommandsTests {
+public class GitCommandsTests{
 
-	private static String url = "https://github.com/Coveros/helloworld.git";
+	private static String url = "https://github.com/seniwar/justForTestRepo.git";
 	
-	private static String projectPath = System.getProperty("user.dir") + "\\helloworld";
+	private static String projectPath = System.getProperty("user.dir") + "\\justForTestRepo";
 	static File projectDir = new File(projectPath);
-	
 
-	private static String expectedLogs = "\n649d8b1484235ea186b060fae08c5ca1598a8327,Gene Gotimer,Sun Sep 15 15:52:57 2019 -0400,Added time stamp to make each run unique (sign of life)\n"
-			+ "e3d42c1d8557e26692759b66516bf93b64cae7e6,Gene Gotimer,Sat Sep 8 15:19:29 2018 -0400,Added a README\n"
-			+ "c51f661a26bd223ff9bca44cac253d0c314c0401,Gene Gotimer,Sat Sep 8 15:15:35 2018 -0400,Simple Java application";
-	 
-	
 	public boolean isDirEmpty(String path) throws IOException {
 		Path cachedCommitsPathObj = Paths.get(path);
 	    try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(cachedCommitsPathObj)) {
@@ -60,7 +54,8 @@ public class GitCommandsTests {
 	
 	
 	@Test
-	public void gitCloneAndLogTest() throws RunCommandExeption, IOException, InterruptedException {				
+	public void gitCloneAndLogTest() throws RunCommandExeption, IOException, InterruptedException {		
+		String expectedLogs =  "\n1202de66253946fc200842c7ffcfb5c7d5ce594a,iguerra,'2021-07-14T00:30:09Z',this commit is just for test";
 		assertEquals(expectedLogs, GitCommands.gitCloneAndLog(url, projectPath));
 		assertTrue(projectDir.exists() && projectDir.isDirectory() && !isDirEmpty(projectPath));
 	}
