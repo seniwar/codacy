@@ -1,4 +1,4 @@
-package exercise;
+package data;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +8,6 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 
 import exeptions.FailedHTTTPResponseExeption;
-import exeptions.InvalidInputExeption;
 import exeptions.RunCommandExeption;
 import exeptions.UrlMalFormedExeption;
 
@@ -72,7 +71,7 @@ public class GitProject {
 	}
 
 	
-	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, InvalidInputExeption, ClassNotFoundException  {    
+	public void seeCommitLogs() throws IOException, InterruptedException, RunCommandExeption, ClassNotFoundException  {    
 
 		List<Commit> commits = new ArrayList<>();	
 		if (!projectDir.exists() || (projectDir.exists() && !cachedCommitsFile.exists())) {
@@ -85,7 +84,7 @@ public class GitProject {
 	}
 	
 	
-	private void logParseAndSerialize() throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption {		
+	private void logParseAndSerialize() throws RunCommandExeption, IOException, InterruptedException {		
 
 		List<Commit> commits = new ArrayList<>();
 		GitHubAPI gitHubAPI = new GitHubAPI();			
@@ -104,7 +103,7 @@ public class GitProject {
 
 		List<Commit> commits = new ArrayList<>();
 		String commitLogs;
-		System.out.println("ERROR invoking GitHub API. Using fallback procedure...");
+		System.out.println(NEW_LINE + "ERROR invoking GitHub API. Using fallback procedure..." + NEW_LINE);
 		if (projectDir.exists()) {
 			FileUtils.forceDelete(projectDir);
 		}
@@ -120,7 +119,7 @@ public class GitProject {
 		String jsonResponse = GitHubAPI.getCommitsFromAPI(projectName, userName);
 		JsonProcessor jsonProc = new JsonProcessor(jsonResponse);
 		commits = jsonProc.parseJsonCommitLogs();
-		System.out.println("The List of Commits got from API is: ");
+		System.out.println(NEW_LINE + "The List of Commits got from API is: " + NEW_LINE);
 		printCommits(commits);
 		return commits;
 	}
@@ -131,7 +130,7 @@ public class GitProject {
 		String[] commitArray = splitByLine(commitLogs);
 		List<Commit> commits = new ArrayList<>();
 		
-		System.out.println("The List of Commits is: ");
+		System.out.println("The List of Commits is: " + NEW_LINE);
 		for (int i = 0; i < commitArray.length; i++) {
 			String[] log = commitArray[i].split(COMMA);
 			Commit commit = new Commit(log[LOG_SHA_INDEX], log[LOG_MESSAGE_INDEX], log[LOG_DATE_INDEX], log[LOG_AUTHOR_INDEX]);

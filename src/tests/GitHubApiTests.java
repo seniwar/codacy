@@ -10,8 +10,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import data.GitHubAPI;
 import exeptions.FailedHTTTPResponseExeption;
-import exercise.GitHubAPI;
 
 
 public class GitHubApiTests {

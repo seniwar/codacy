@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import exercise.Commit;
-import exercise.ReadAndWriteOperations;
+import data.Commit;
+import data.ReadAndWriteOperations;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)

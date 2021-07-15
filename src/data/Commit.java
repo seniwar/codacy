@@ -1,4 +1,4 @@
-package exercise;
+package data;
 
 public class Commit implements java.io.Serializable {
 
@@ -22,7 +22,7 @@ public class Commit implements java.io.Serializable {
 		return  "Commit: " + this.sha + "\n" + 
 				"Author: " + this.author + "\n" + 
 				"Date: " + this.date + "\n" + 
-				"Message: " + this.message + "\n\n";
+				"Message: " + this.message + "\n";
 	}
 	
 	

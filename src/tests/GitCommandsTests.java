@@ -15,8 +15,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import data.GitCommands;
 import exeptions.RunCommandExeption;
-import exercise.GitCommands;
 
 
 public class GitCommandsTests{

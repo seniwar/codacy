@@ -1,16 +1,17 @@
-package exercise;
+package main;
 
 import java.io.IOException;
 import java.util.Scanner;
 
-import exeptions.InvalidInputExeption;
+import data.GitCommands;
+import data.GitProject;
 import exeptions.RunCommandExeption;
 import exeptions.UrlMalFormedExeption;
 
 
 public class CodacyExercise {
 
-	public static void main(String [] args) throws RunCommandExeption, IOException, InterruptedException, InvalidInputExeption, ClassNotFoundException {
+	public static void main(String [] args) throws RunCommandExeption, IOException, InterruptedException, ClassNotFoundException {
 		
 		new GitCommands();	
 		Scanner scan = new Scanner(System.in);

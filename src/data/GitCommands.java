@@ -1,4 +1,4 @@
-package exercise;
+package data;
 
 import java.io.IOException;
 

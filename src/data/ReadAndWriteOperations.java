@@ -1,4 +1,4 @@
-package exercise;
+package data;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,7 +41,7 @@ public class ReadAndWriteOperations {
 		try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(cachedCommitsFile) )){
 			commits = (List<Commit>)in.readObject();
 		}                   
-        System.out.println("Showing cached commit list...");
+        System.out.println(NEW_LINE + "Showing cached commit list..." + NEW_LINE);
 		return commits;
 	}
 	

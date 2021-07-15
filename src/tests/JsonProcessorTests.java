@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import exercise.Commit;
-import exercise.JsonProcessor;
+import data.Commit;
+import data.JsonProcessor;
 
 public class JsonProcessorTests  {
 	

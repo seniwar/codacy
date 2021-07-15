@@ -21,10 +21,9 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import exeptions.InvalidInputExeption;
+import data.GitProject;
 import exeptions.RunCommandExeption;
 import exeptions.UrlMalFormedExeption;
-import exercise.GitProject;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -96,7 +95,7 @@ public class GitProjTests  {
 	
 	@Test
 	@Order(3)
-	public void seeCommitLogsUsingApiTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {
+	public void seeCommitLogsUsingApiTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption {
 		gitProj.seeCommitLogs();
 		assertTrue(gitProj.getProjectDir().exists() && gitProj.getProjectDir().isDirectory() && !isDirEmpty(gitProj.getProjectPath()));
 		assertTrue(gitProj.getCachedCommitsFile().exists() && gitProj.getCachedCommitsFile().canRead());
@@ -111,7 +110,7 @@ public class GitProjTests  {
 	
 	@Test
 	@Order(4)
-	public void seeCommitLogsWithCacheTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption {
+	public void seeCommitLogsWithCacheTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption {
 		gitProj.seeCommitLogs();
 		assertTrue(outputStreamCaptor.toString().contains("Showing cached commit list..."));
 		assertTrue(outputStreamCaptor.toString().contains("Commit: 1202de66253946fc200842c7ffcfb5c7d5ce594a"));
@@ -120,7 +119,7 @@ public class GitProjTests  {
 
 	@Test
 	@Order(5)
-	public void seeCommitLogsWithCloneTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption, InvalidInputExeption  {	
+	public void seeCommitLogsWithCloneTest() throws ClassNotFoundException, IOException, InterruptedException, RunCommandExeption  {	
 		gitProj.setUserName("xxx");
 		FileUtils.forceDelete(gitProj.getProjectDir()); 	
 		gitProj.seeCommitLogs();
