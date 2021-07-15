@@ -45,23 +45,4 @@ public class Commit implements java.io.Serializable {
 		return author;
 	}
 	
-
-	public void setSha(String sha) {
-		this.sha = sha;
-	}
-
-	
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	
-	public void setDate(String date) {
-		this.date = date;
-	}
-	
-
-	public void setAuthor(String author) {
-		this.author = author;
-	} 
 }

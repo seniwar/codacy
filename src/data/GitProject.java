@@ -36,10 +36,7 @@ public class GitProject {
 	String userName;
 	File cachedCommitsFile;
 	
-	
-	public GitProject() {}
-	
-	
+
 	public GitProject(String url) throws UrlMalFormedExeption {
 		
 		this.url = url;
@@ -165,12 +162,6 @@ public class GitProject {
 	public File getProjectDir() {
 		return projectDir;
 	}
-	
-
-	public String getUrl() {
-		return url;
-	}
-
 
 	public String getProjectName() {
 		return projectName;
@@ -180,28 +171,8 @@ public class GitProject {
 	public String getUserName() {
 		return userName;
 	}
+
 	
-	
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-
-	public void setProjectPath(String projectPath) {
-		this.projectPath = projectPath;
-	}
-
-
-	public void setProjectDir(File projectDir) {
-		this.projectDir = projectDir;
-	}
-
-
-	public void setProjectName(String projectName) {
-		this.projectName = projectName;
-	}
-
-
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
@@ -209,10 +180,5 @@ public class GitProject {
 
 	public File getCachedCommitsFile() {
 		return cachedCommitsFile;
-	}
-	
-	
-	public void setCachedCommitsFile(File cachedCommitsFile) {
-		this.cachedCommitsFile = cachedCommitsFile;
 	}
 }

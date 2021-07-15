@@ -15,7 +15,7 @@ You need to have java installed on your system.
 ```
 
 
-*Enter cloned repo and compile code: 
+* Enter cloned repo and compile code: 
 ```
    $ cd codacy
    $ javac -d bin -cp "./bin;./libs/*" src/*/*.java
@@ -29,8 +29,10 @@ You need to have java installed on your system.
 * Enter url from which you want to retrieve the commit list:
 e.g.
 ```
-   $ https://github.com/seniwar/justForTestRepo.git
+   https://github.com/seniwar/justForTestRepo.git
 ```
 
 
-**The Commit List is showned and serialized into refered path.**
+**The Commit List is shown and serialized into referred path.**
+
+To see the serialized data, run the program again and provide the same URL as before.
