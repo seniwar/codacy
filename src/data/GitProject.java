@@ -58,8 +58,12 @@ public class GitProject {
 		try {
 			String[] urlParts = url.split(URL_SPLIT_CHAR);
 			String lastPart = urlParts[urlParts.length-1];
-			
-			this.projectName = lastPart.substring(URL_PROJECT_INDEX, lastPart.indexOf(GIT_EXTENSION));
+			if(url.contains(GIT_EXTENSION)) {
+				this.projectName = lastPart.substring(URL_PROJECT_INDEX, lastPart.indexOf(GIT_EXTENSION));
+			}
+			else {
+				this.projectName = lastPart;
+			}
 			this.userName = urlParts[URL_USERNAME_INDEX];
 		}
 		catch (Exception e){
